@@ -84,6 +84,18 @@ class TestChunkedReceiverParametrized:
         assert result == len(data)
         assert inst.error is None
 
+    @pytest.mark.parametrize("invalid_size", [b"0x04", b"+0x04", b"x04", b"+04"])
+    def test_received_invalid_size(self, invalid_size):
+         from waitress.utilities import BadRequest
+
+         buf = DummyBuffer()
+         inst = self._makeOne(buf)
+         data = invalid_size + b"\r\ntest\r\n"
+         result = inst.received(data)
+         assert result == len(data)
+         assert inst.error.__class__ == BadRequest
+         assert inst.error.body == "Invalid chunk size"
+
 class TestChunkedReceiver(unittest.TestCase):
     def _makeOne(self, buf):
         from waitress.receiver import ChunkedReceiver
