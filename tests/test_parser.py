@@ -182,6 +182,31 @@ class TestHTTPRequestParser(unittest.TestCase):
         else:  # pragma: nocover
             self.assertTrue(False)
 
+    def test_parse_header_bad_content_length_plus(self):
+        from waitress.parser import ParsingError
+
+        data = b"GET /foobar HTTP/8.4\r\ncontent-length: +10\r\n"
+
+        try:
+            self.parser.parse_header(data)
+        except ParsingError as e:
+            self.assertIn("Content-Length is invalid", e.args[0])
+        else:  # pragma: nocover
+            self.assertTrue(False)
+
+    def test_parse_header_bad_content_length_minus(self):
+        from waitress.parser import ParsingError
+
+        data = b"GET /foobar HTTP/8.4\r\ncontent-length: -10\r\n"
+
+        try:
+            self.parser.parse_header(data)
+        except ParsingError as e:
+            self.assertIn("Content-Length is invalid", e.args[0])
+        else:  # pragma: nocover
+            self.assertTrue(False)
+
+
     def test_parse_header_bad_content_length(self):
         from waitress.parser import ParsingError
 
